@@ -45,6 +45,12 @@ func getFieldValue(repo string, run github.WorkflowRun, field string) string {
 		return *run.Event
 	case "status":
 		return *run.Status
+	case "conclusion":
+		if run.Conclusion != nil {
+			return *run.Conclusion
+		}
+		log.Printf("Conclusion is nil for run '%s'", *run.NodeID)
+		return ""
 	}
 	log.Printf("Tried to fetch invalid field '%s'", field)
 	return ""
@@ -109,7 +115,6 @@ func getWorkflowRunsFromGithub() {
 		for _, repo := range repositories {
 			r := strings.Split(repo, "/")
 			runs := getRecentWorkflowRuns(r[0], r[1])
-
 			for _, run := range runs {
 				var s float64 = 0
 				if run.GetConclusion() == "success" {
