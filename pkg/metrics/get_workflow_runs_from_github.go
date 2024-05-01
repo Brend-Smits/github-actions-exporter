@@ -53,8 +53,6 @@ func getFieldValue(repo string, run github.WorkflowRun, field string) string {
 		return ""
 	case "created_at":
 		return run.CreatedAt.Time.Format(time.RFC3339)
-	case "updated_at":
-		return run.UpdatedAt.Time.Format(time.RFC3339)
 	case "workflow_url":
 		return *run.HTMLURL
 	}
