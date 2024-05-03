@@ -72,8 +72,7 @@ func getRelevantFields(repo string, run *github.WorkflowRun) []string {
 }
 
 func getRecentWorkflowRuns(owner string, repo string) []*github.WorkflowRun {
-	// TODO: Make the time window configurable
-	window_start := time.Now().Add(time.Duration(-24) * time.Hour).Format(time.RFC3339)
+	window_start := time.Now().Add(time.Duration(-config.Github.WorkflowFetchTimeWindow) * time.Hour).Format(time.RFC3339)
 	opt := &github.ListWorkflowRunsOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 		Created:     ">=" + window_start,

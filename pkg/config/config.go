@@ -5,15 +5,16 @@ import "github.com/urfave/cli/v2"
 var (
 	// Github - github configuration
 	Github struct {
-		AppID             int64  `split_words:"true"`
-		AppInstallationID int64  `split_words:"true"`
-		AppPrivateKey     string `split_words:"true"`
-		Token             string
-		Refresh           int64
-		Repositories      cli.StringSlice
-		Organizations     cli.StringSlice
-		APIURL            string
-		CacheSizeBytes    int64
+		AppID                   int64  `split_words:"true"`
+		AppInstallationID       int64  `split_words:"true"`
+		AppPrivateKey           string `split_words:"true"`
+		Token                   string
+		Refresh                 int64
+		Repositories            cli.StringSlice
+		Organizations           cli.StringSlice
+		APIURL                  string
+		CacheSizeBytes          int64
+		WorkflowFetchTimeWindow int64
 	}
 	Metrics struct {
 		FetchWorkflowRunUsage bool
@@ -126,6 +127,13 @@ func InitConfiguration() []cli.Flag {
 			Value:       100 * 1024 * 1024,
 			Usage:       "Size of Github HTTP cache in bytes",
 			Destination: &Github.CacheSizeBytes,
+		},
+		&cli.Int64Flag{
+			Name:        "workflow_fetch_time_window",
+			EnvVars:     []string{"WORKFLOW_FETCH_TIME_WINDOW"},
+			Value:       24,
+			Usage:       "Time window in hours to fetch workflow runs, in hours. Default is 24",
+			Destination: &Github.WorkflowFetchTimeWindow,
 		},
 	}
 }
