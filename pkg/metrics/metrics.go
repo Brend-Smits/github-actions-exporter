@@ -49,42 +49,42 @@ func InitMetrics() {
 	)
 	workflowCompletedSuccesfullyCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "github_workflow_completed_succesfully",
+			Name: "github_workflow_completed_succesfully_count",
 			Help: "Number of workflows that completed succesfully",
 		},
 		[]string{"repo", "workflow"},
 	)
 	workflowFailedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "github_workflow_failed",
+			Name: "github_workflow_failed_count",
 			Help: "Number of workflows that failed",
 		},
 		[]string{"repo", "workflow"},
 	)
 	workflowSkippedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "github_workflow_skipped",
+			Name: "github_workflow_skipped_count",
 			Help: "Number of workflows that were skipped",
 		},
 		[]string{"repo", "workflow"},
 	)
 	workflowQueuedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "github_workflow_queued",
+			Name: "github_workflow_queued_count",
 			Help: "Number of workflows that are queued",
 		},
 		[]string{"repo", "workflow"},
 	)
 	workflowCancelledCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "github_workflow_cancelled",
+			Name: "github_workflow_cancelled_count",
 			Help: "Number of workflows that were cancelled",
 		},
 		[]string{"repo", "workflow"},
 	)
 	workflowInProgressCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "github_workflow_in_progress",
+			Name: "github_workflow_in_progress_count",
 			Help: "Number of workflows in progress",
 		},
 		[]string{"repo", "workflow"},
