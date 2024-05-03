@@ -125,20 +125,22 @@ func getWorkflowRunsFromGithub() {
 			for _, run := range runs {
 				var s float64 = -1
 				if run.GetConclusion() == "success" {
-					log.Printf("Will try to increment workflowCompletedSuccesfullyCounter for %s/%s %s", r[0], r[1], *run.Name)
 					workflowCompletedSuccesfullyCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 1
 				} else if run.GetConclusion() == "skipped" {
+					workflowSkippedCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 2
 				} else if run.GetConclusion() == "in_progress" {
-					log.Printf("Will try to increment workflowInProgressCounter for %s/%s/%s", r[0], r[1], *run.Name)
 					workflowInProgressCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 3
 				} else if run.GetConclusion() == "queued" {
+					workflowQueuedCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 4
 				} else if run.GetConclusion() == "failure" {
+					workflowFailedCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 0
 				} else if run.GetConclusion() == "cancelled" {
+					workflowCancelledCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 5
 				}
 

@@ -25,6 +25,10 @@ var (
 	workflowRunDurationGauge            *prometheus.GaugeVec
 	workflowInProgressCounter           *prometheus.CounterVec
 	workflowCompletedSuccesfullyCounter *prometheus.CounterVec
+	workflowFailedCounter               *prometheus.CounterVec
+	workflowSkippedCounter              *prometheus.CounterVec
+	workflowQueuedCounter               *prometheus.CounterVec
+	workflowCancelledCounter            *prometheus.CounterVec
 )
 
 // InitMetrics - register metrics in prometheus lib and start func for monitor
@@ -50,6 +54,34 @@ func InitMetrics() {
 		},
 		[]string{"repo", "workflow"},
 	)
+	workflowFailedCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "github_workflow_failed",
+			Help: "Number of workflows that failed",
+		},
+		[]string{"repo", "workflow"},
+	)
+	workflowSkippedCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "github_workflow_skipped",
+			Help: "Number of workflows that were skipped",
+		},
+		[]string{"repo", "workflow"},
+	)
+	workflowQueuedCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "github_workflow_queued",
+			Help: "Number of workflows that are queued",
+		},
+		[]string{"repo", "workflow"},
+	)
+	workflowCancelledCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "github_workflow_cancelled",
+			Help: "Number of workflows that were cancelled",
+		},
+		[]string{"repo", "workflow"},
+	)
 	workflowInProgressCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "github_workflow_in_progress",
@@ -65,6 +97,10 @@ func InitMetrics() {
 	prometheus.MustRegister(runnersEnterpriseGauge)
 	prometheus.MustRegister(workflowInProgressCounter)
 	prometheus.MustRegister(workflowCompletedSuccesfullyCounter)
+	prometheus.MustRegister(workflowFailedCounter)
+	prometheus.MustRegister(workflowSkippedCounter)
+	prometheus.MustRegister(workflowQueuedCounter)
+	prometheus.MustRegister(workflowCancelledCounter)
 
 	client, err = NewClient()
 	if err != nil {
