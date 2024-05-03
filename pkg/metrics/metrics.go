@@ -12,17 +12,19 @@ import (
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
 	"github.com/die-net/lrucache"
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v61/github"
 	"github.com/gregjones/httpcache"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/oauth2"
 )
 
 var (
-	client                   *github.Client
-	err                      error
-	workflowRunStatusGauge   *prometheus.GaugeVec
-	workflowRunDurationGauge *prometheus.GaugeVec
+	client                              *github.Client
+	err                                 error
+	workflowRunStatusGauge              *prometheus.GaugeVec
+	workflowRunDurationGauge            *prometheus.GaugeVec
+	workflowInProgressCounter           *prometheus.CounterVec
+	workflowCompletedSuccesfullyCounter *prometheus.CounterVec
 )
 
 // InitMetrics - register metrics in prometheus lib and start func for monitor
@@ -41,12 +43,28 @@ func InitMetrics() {
 		},
 		strings.Split(config.WorkflowFields, ","),
 	)
+	workflowCompletedSuccesfullyCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "github_workflow_completed_succesfully",
+			Help: "Number of workflows that completed succesfully",
+		},
+		[]string{"repo", "workflow"},
+	)
+	workflowInProgressCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "github_workflow_in_progress",
+			Help: "Number of workflows in progress",
+		},
+		[]string{"repo", "workflow"},
+	)
 	prometheus.MustRegister(runnersGauge)
 	prometheus.MustRegister(runnersOrganizationGauge)
 	prometheus.MustRegister(workflowRunStatusGauge)
 	prometheus.MustRegister(workflowRunDurationGauge)
 	prometheus.MustRegister(workflowBillGauge)
 	prometheus.MustRegister(runnersEnterpriseGauge)
+	prometheus.MustRegister(workflowInProgressCounter)
+	prometheus.MustRegister(workflowCompletedSuccesfullyCounter)
 
 	client, err = NewClient()
 	if err != nil {

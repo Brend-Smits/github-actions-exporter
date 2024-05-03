@@ -2,14 +2,16 @@ package metrics
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spendesk/github-actions-exporter/pkg/config"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v61/github"
 )
 
 // getFieldValue return value from run element which corresponds to field
@@ -70,9 +72,10 @@ func getRelevantFields(repo string, run *github.WorkflowRun) []string {
 }
 
 func getRecentWorkflowRuns(owner string, repo string) []*github.WorkflowRun {
-	window_start := time.Now().Add(time.Duration(-12) * time.Hour).Format(time.RFC3339)
+	// TODO: Make the time window configurable
+	window_start := time.Now().Add(time.Duration(-24) * time.Hour).Format(time.RFC3339)
 	opt := &github.ListWorkflowRunsOptions{
-		ListOptions: github.ListOptions{PerPage: 200},
+		ListOptions: github.ListOptions{PerPage: 100},
 		Created:     ">=" + window_start,
 	}
 
@@ -120,15 +123,23 @@ func getWorkflowRunsFromGithub() {
 			r := strings.Split(repo, "/")
 			runs := getRecentWorkflowRuns(r[0], r[1])
 			for _, run := range runs {
-				var s float64 = 0
+				var s float64 = -1
 				if run.GetConclusion() == "success" {
+					log.Printf("Will try to increment workflowCompletedSuccesfullyCounter for %s/%s %s", r[0], r[1], *run.Name)
+					workflowCompletedSuccesfullyCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 1
 				} else if run.GetConclusion() == "skipped" {
 					s = 2
 				} else if run.GetConclusion() == "in_progress" {
+					log.Printf("Will try to increment workflowInProgressCounter for %s/%s/%s", r[0], r[1], *run.Name)
+					workflowInProgressCounter.With(prometheus.Labels{"repo": fmt.Sprintf("%s/%s", r[0], r[1]), "workflow": *run.Name}).Inc()
 					s = 3
 				} else if run.GetConclusion() == "queued" {
 					s = 4
+				} else if run.GetConclusion() == "failure" {
+					s = 0
+				} else if run.GetConclusion() == "cancelled" {
+					s = 5
 				}
 
 				fields := getRelevantFields(repo, run)
